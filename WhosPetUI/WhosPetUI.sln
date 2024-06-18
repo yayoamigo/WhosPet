@@ -5,13 +5,13 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhosPetUI", "WhosPetUI\WhosPetUI.csproj", "{6B8F6DA2-AD2A-4444-B7AF-78BCE57F590A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhosPetAuth", "WhosPetAuth\WhosPetAuth.csproj", "{4977061C-8505-452D-8768-6028B4FA2077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhosPetAuth", "WhosPetAuth\WhosPetAuth.csproj", "{4977061C-8505-452D-8768-6028B4FA2077}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhosPetInfrastructure", "WhosPetInfrastructure\WhosPetInfrastructure.csproj", "{4FF72CA9-1FDC-4EF9-8660-30901F2D5347}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhosPetInfrastructure", "WhosPetInfrastructure\WhosPetInfrastructure.csproj", "{4FF72CA9-1FDC-4EF9-8660-30901F2D5347}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhosPetCore", "WhosPetCore\WhosPetCore.csproj", "{03760626-4489-4BBC-9FFA-175D7552DE90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhosPetCore", "WhosPetCore\WhosPetCore.csproj", "{03760626-4489-4BBC-9FFA-175D7552DE90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhosPetCommon", "WhosPetCommon\WhosPetCommon.csproj", "{504F9CAA-DAA8-4E83-B296-65176484B4A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhosPetTests", "WhosPetTests\WhosPetTests.csproj", "{CF4EDE2C-8018-436D-A974-46BF090C773F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{03760626-4489-4BBC-9FFA-175D7552DE90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03760626-4489-4BBC-9FFA-175D7552DE90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03760626-4489-4BBC-9FFA-175D7552DE90}.Release|Any CPU.Build.0 = Release|Any CPU
-		{504F9CAA-DAA8-4E83-B296-65176484B4A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{504F9CAA-DAA8-4E83-B296-65176484B4A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{504F9CAA-DAA8-4E83-B296-65176484B4A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{504F9CAA-DAA8-4E83-B296-65176484B4A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF4EDE2C-8018-436D-A974-46BF090C773F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF4EDE2C-8018-436D-A974-46BF090C773F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF4EDE2C-8018-436D-A974-46BF090C773F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF4EDE2C-8018-436D-A974-46BF090C773F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
