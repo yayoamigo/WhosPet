@@ -3,37 +3,25 @@
 ## Overview
 This project is a web application for reporting lost pets. It is built using .NET C#, ASP.NET MVC, Web API, and follows Clean Architecture principles. It also uses JWT for login and registration, with authorization on the endpoints. Users can add pets, which are automatically assigned to the logged-in user, and create reports on those pets. Notifications are sent to all users when a report is created.
 
-## Table of Contents
-- [User Story](#user-story)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Setup Instructions](#setup-instructions)
-- [Database Setup](#database-setup)
-- [Running the Application](#running-the-application)
-- [Testing](#testing)
-- [Postman Collections](#postman-collections)
-- [Unit Tests](#unit-tests)
-
 ## User Story
-As a user, I want to be able to create, read, update, and delete records so that I can manage my data effectively. Additionally, I want to be able to create an account and log in to the application to ensure my data is secure and only accessible to me.
+As a user, I want to be able to add my pets, update them, look for my pets, and delete them. Also create reports if any of those pets get lost, those reports can be searched by city, and every time a report gets created a notification will be saved so all other users can be on the lookout.
 
 ## Project Structure
 The project is organized according to Clean Architecture principles:
 - **Core**: Contains domain entities and interfaces.
 - **Infrastructure**: Contains data access implementations using ADO.NET.
-- **API**: Contains ASP.NET Web API controllers.
+- **Auth**: Contains Auth and Authentication controllers.
 - **UI**: Contains the presentation layer for the application.
 - **Tests**: Contains unit tests for all components.
 
 ## Prerequisites
 - [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 - [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
-- [Docker](https://www.docker.com/) (Optional, for containerizing the application)
 
 ## Setup Instructions
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/whospet.git
+   git clone https://github.com/yayoamigo/whospet.git
    cd whospet
 Open the solution in Visual Studio.
 
