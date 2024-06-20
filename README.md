@@ -178,9 +178,7 @@ CREATE TABLE Notifications (
     IsRead BIT NOT NULL,
     FOREIGN KEY (UserId) REFERENCES UserProfiles(Email) ON DELETE CASCADE
 );
-
-
-
+```
 ## Start the API and UI project
 
 When the project starts a user will be created, you can use it to login as Admin
