@@ -11,8 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WhosPetCore.Domain.Entities.Auth;
 using WhosPetCore.Domain.Indentity;
+using WhosPetCore.Domain.ServiceContracts;
 using WhosPetCore.DTO.Incoming.Auth;
-using WhosPetCore.ServiceContracts;
 
 namespace WhosPetCore.Helpers
 {

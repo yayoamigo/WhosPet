@@ -25,7 +25,7 @@ namespace WhosPetInfrastructure.Repositories
             {
                 await connection.OpenAsync();
 
-                var query = "INSERT INTO RefreshToken (JwtId, IsUsed, IsRevoked, UserId, CreatedDate, ExpireDate, Token) VALUES (@JwtId, @IsUsed, @IsRevoked, @UserId, @CreatedDate, @ExpireDate, @Token)";
+                var query = "INSERT INTO RefreshTokens (JwtId, IsUsed, IsRevoked, UserId, CreatedDate, ExpireDate, Token) VALUES (@JwtId, @IsUsed, @IsRevoked, @UserId, @CreatedDate, @ExpireDate, @Token)";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@JwtId", refreshToken.jwtId);

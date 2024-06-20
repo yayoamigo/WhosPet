@@ -1,46 +1,79 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using WhosPetCore.Domain.Indentity;
 
 namespace WhosPetAuth.IdentityStores
 {
-
-    public class RoleStore : IRoleStore<IdentityRole>
+    public class RoleStore : IRoleStore<ApplicationRole>, IQueryableRoleStore<ApplicationRole>
     {
         private readonly string _connectionString;
+        private readonly List<ApplicationRole> _roles;
 
         public RoleStore(ConnectionStringOptions options)
         {
             _connectionString = options.ConnectionString;
+            _roles = new List<ApplicationRole>();
+
+            LoadRolesFromDatabase();
         }
 
-        public Task<IdentityResult> CreateAsync(IdentityRole role, CancellationToken cancellationToken)
+        private void LoadRolesFromDatabase()
+        {
+            using (var connection = new SqlConnection(_connectionString))
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                connection.Open();
 
-                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("SELECT * FROM AspNetRoles", connection))
                 {
-                    connection.Open();
-
-                    using (var command = new SqlCommand("INSERT INTO AspNetRoles (Id, Name, NormalizedName) VALUES (@Id, @Name, @NormalizedName)", connection))
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.Parameters.AddWithValue("@Id", role.Id);
-                        command.Parameters.AddWithValue("@Name", role.Name);
-                        command.Parameters.AddWithValue("@NormalizedName", role.NormalizedName);
+                        while (reader.Read())
+                        {
+                            var role = new ApplicationRole
+                            {
+                                Id = reader["Id"].ToString(),
+                                Name = reader["Name"].ToString(),
+                                NormalizedName = reader["NormalizedName"].ToString()
+                            };
 
-                        command.ExecuteNonQuery();
+                            _roles.Add(role);
+                        }
                     }
                 }
+            }
+        }
 
-                return Task.FromResult(IdentityResult.Success);
+        public IQueryable<ApplicationRole> Roles => _roles.AsQueryable();
+
+        public async Task<IdentityResult> CreateAsync(ApplicationRole role, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync(cancellationToken);
+
+                role.Id = Guid.NewGuid().ToString();
+                role.NormalizedName = role.Name.ToUpper();
+
+                using (var command = new SqlCommand("INSERT INTO AspNetRoles (Id, Name, NormalizedName) VALUES (@Id, @Name, @NormalizedName)", connection))
+                {
+                    command.Parameters.AddWithValue("@Id", role.Id);
+                    command.Parameters.AddWithValue("@Name", role.Name);
+                    command.Parameters.AddWithValue("@NormalizedName", role.NormalizedName);
+
+                    await command.ExecuteNonQueryAsync(cancellationToken);
+                }
             }
 
+            return IdentityResult.Success;
+        }
 
-       public Task<IdentityResult> UpdateAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<IdentityResult> UpdateAsync(ApplicationRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -59,10 +92,9 @@ namespace WhosPetAuth.IdentityStores
             }
 
             return Task.FromResult(IdentityResult.Success);
-           
         }
 
-        public Task<IdentityResult> DeleteAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<IdentityResult> DeleteAsync(ApplicationRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -79,10 +111,9 @@ namespace WhosPetAuth.IdentityStores
             }
 
             return Task.FromResult(IdentityResult.Success);
-           
         }
 
-        public Task<IdentityRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
+        public Task<ApplicationRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -98,10 +129,10 @@ namespace WhosPetAuth.IdentityStores
                     {
                         if (!reader.Read())
                         {
-                            return Task.FromResult<IdentityRole>(null);
+                            return Task.FromResult<ApplicationRole>(null);
                         }
 
-                        var role = new IdentityRole
+                        var role = new ApplicationRole
                         {
                             Id = reader["Id"].ToString(),
                             Name = reader["Name"].ToString(),
@@ -112,10 +143,9 @@ namespace WhosPetAuth.IdentityStores
                     }
                 }
             }
-           
         }
 
-        public Task<IdentityRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        public Task<ApplicationRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -131,10 +161,10 @@ namespace WhosPetAuth.IdentityStores
                     {
                         if (!reader.Read())
                         {
-                            return Task.FromResult<IdentityRole>(null);
+                            return Task.FromResult<ApplicationRole>(null);
                         }
 
-                        var role = new IdentityRole
+                        var role = new ApplicationRole
                         {
                             Id = reader["Id"].ToString(),
                             Name = reader["Name"].ToString(),
@@ -145,36 +175,33 @@ namespace WhosPetAuth.IdentityStores
                     }
                 }
             }
-           
         }
 
-        public Task<string> GetRoleIdAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<string> GetRoleIdAsync(ApplicationRole role, CancellationToken cancellationToken)
         {
             return Task.FromResult(role.Id);
         }
 
-        public Task<string> GetRoleNameAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<string> GetRoleNameAsync(ApplicationRole role, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(role.Name);
+        }
+
+        public Task<string> GetNormalizedRoleNameAsync(ApplicationRole role, CancellationToken cancellationToken)
         {
             return Task.FromResult(role.NormalizedName);
         }
 
-        public Task<string> GetNormalizedRoleNameAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task SetRoleNameAsync(ApplicationRole role, string roleName, CancellationToken cancellationToken)
         {
-            return Task.FromResult(role.NormalizedName);
+            role.Name = roleName;
+            return Task.CompletedTask;
         }
 
-        public Task SetRoleNameAsync(IdentityRole role, string roleName, CancellationToken cancellationToken)
-        {        
-
-            return Task.FromResult(true);
-
-        }
-
-        public Task SetNormalizedRoleNameAsync(IdentityRole role, string normalizedName, CancellationToken cancellationToken)
+        public Task SetNormalizedRoleNameAsync(ApplicationRole role, string normalizedName, CancellationToken cancellationToken)
         {
-            // Do nothing. In this simple example, the normalized name is generated from the role name.
-
-            return Task.FromResult(true);
+            role.NormalizedName = normalizedName;
+            return Task.CompletedTask;
         }
 
         public void Dispose() { }

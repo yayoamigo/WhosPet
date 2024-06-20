@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WhosPetCore.Domain.RepoContracts;
-using WhosPetCore.ServiceContracts;
+using WhosPetCore.Domain.ServiceContracts;
 
-namespace WhosPetCore.Services
+namespace WhosPetCore.Domain.Services
 {
     public class UserRoleService : IUserRoleService
     {

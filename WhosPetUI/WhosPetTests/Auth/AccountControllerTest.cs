@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using WhosPetAuth.Controllers;
-using WhosPetCore.ServiceContracts;
 using WhosPetCore.DTO.Incoming.Auth;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -18,6 +17,7 @@ using WhosPetCore.Domain.Indentity;
 using WhosPetCore.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using WhosPetCore.Domain.ServiceContracts;
 
 namespace WhosPetAuth.Controllers.Test
 {

@@ -6,13 +6,12 @@ using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using WhosPetCore.DTO.Incoming.Auth;
-using WhosPetCore.Domain.Enums;
 using WhosPetCore.Domain.Indentity;
 using WhosPetCore.Domain.Entities.Auth;
 using WhosPetCore.Domain.Entities;
 using AlertaPatitasAPIUI.Helpers;
-using WhosPetCore.ServiceContracts;
 using WhosPetCore.Helpers;
+using WhosPetCore.Domain.ServiceContracts;
 
 namespace WhosPetAuth.Controllers
 {
@@ -96,7 +95,7 @@ namespace WhosPetAuth.Controllers
         };
 
                 await _userManager.AddClaimsAsync(user, claims);
-                //await _userManager.AddToRoleAsync(user, "User");
+                await _userManager.AddToRoleAsync(user, "User");
                 var jwt = new JwtTokenGenerator(_roleService, _refreshTokenService);
                 var responseResult = await jwt.GenerateJwtToken(user, _config, _connectionString);
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using WhosPetCore.Domain.Entities.Auth;
 using WhosPetCore.Domain.Indentity;
-using WhosPetCore.ServiceContracts;
+using WhosPetCore.Domain.ServiceContracts;
 
 
 

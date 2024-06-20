@@ -1,5 +1,4 @@
-﻿using WhosPetCore.Domain.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,7 @@ namespace WhosPetCore.Domain.Entities.BaseEntities
     public abstract class PetBase
     {
         public string Name { get; set; }
-        public AnimalTypeEnum Type { get; set; }
+        public string Type { get; set; }
         public string Breed { get; set; }
         public string Color { get; set; }
 

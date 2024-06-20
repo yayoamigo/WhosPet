@@ -4,15 +4,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WhosPetAuth;
 using WhosPetAuth.IdentityStores;
+using WhosPetCore.Domain.Indentity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WhosPetAuth.Configuration;
-using WhosPetCore.Domain.Indentity;
-using Microsoft.AspNetCore.DataProtection;
-using System.IO;
-using WhosPetCore.ServiceContracts;
-using WhosPetCore.Services;
 using WhosPetCore.Domain.RepoContracts;
 using WhosPetInfrastructure.Repositories;
+using System.Security.Claims;
+using WhosPetCore.Domain.Entities;
+using System.Data.SqlClient;
+using WhosPetCore.Domain.ServiceContracts;
+using WhosPetCore.Domain.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,37 +22,32 @@ builder.Services.AddControllers();
 
 var connectionString = builder.Configuration.GetConnectionString("WhosPet");
 
-// Register the connection string as a configuration option
 builder.Services.AddSingleton(new ConnectionStringOptions { ConnectionString = connectionString });
 
-// Register the UserStore and RoleStore with the DI container
 builder.Services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
-builder.Services.AddScoped<IRoleStore<IdentityRole>, RoleStore>();
+builder.Services.AddScoped<IRoleStore<ApplicationRole>, RoleStore>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 
-// Configure Identity without default token providers
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
-    // Disable password requirements
     options.Password.RequireDigit = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
-    options.Password.RequiredLength = 1; // Minimum length of 1
-    options.Password.RequiredUniqueChars = 0; // No unique character requirement
+    options.Password.RequiredLength = 1;
+    options.Password.RequiredUniqueChars = 0;
 })
     .AddUserStore<UserStore>()
-    .AddRoleStore<RoleStore>();
+    .AddRoleStore<RoleStore>()
+    .AddRoleManager<RoleManager<ApplicationRole>>();
 
-// Configure Data Protection
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(@"C:\keys")) // Specify a directory to store keys
-    .SetApplicationName("WhosPetApp"); // Set a unique application name
+    .PersistKeysToFileSystem(new DirectoryInfo(@"C:\keys"))
+    .SetApplicationName("WhosPetApp");
 
-// Configure JWT
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
 byte[] key = Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"]);
 
@@ -62,10 +59,9 @@ var tokenValidationParameters = new TokenValidationParameters()
     ValidateAudience = false,
     RequireExpirationTime = true,
     ValidateLifetime = true,
-    ClockSkew = TimeSpan.Zero // Optional: Reduce the allowed clock skew for token expiration
+    ClockSkew = TimeSpan.Zero
 };
 
-// Register TokenValidationParameters
 builder.Services.AddSingleton(tokenValidationParameters);
 
 builder.Services.AddAuthentication(options =>
@@ -85,15 +81,89 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+    var roles = new[] { "Admin", "User" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new ApplicationRole { Name = role });
+        }
+    }
+
+    var ownerEmail = "yayon@example.com";
+    var owner = await userManager.FindByEmailAsync(ownerEmail);
+
+    if (owner == null)
+    {
+        var user = new ApplicationUser
+        {
+            Email = ownerEmail,
+            UserName = ownerEmail,
+            EmailConfirmed = true,
+        };
+
+        string password = "string";
+        var result = await userManager.CreateAsync(user, password);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, "Admin");
+
+            AddUserProfileToDatabase(connectionString, user.Email, user.UserName, "David", "Guayaquil", "Calle 123");
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+            await userManager.AddClaimsAsync(user, claims);
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                Console.WriteLine($"Error creating user: {error.Description}");
+            }
+        }
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication(); // Ensure UseAuthentication is before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+void AddUserProfileToDatabase(string connectionString, string email, string name, string surname, string city, string address)
+{
+    using (var connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+
+        var query = "INSERT INTO UserProfile (Email, Name, Surname, City, Address) VALUES (@Email, @Name, @Surname, @City, @Address)";
+
+        using (var command = new SqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@Email", email);
+            command.Parameters.AddWithValue("@Name", name);
+            command.Parameters.AddWithValue("@Surname", surname);
+            command.Parameters.AddWithValue("@City", city);
+            command.Parameters.AddWithValue("@Address", address);
+
+            command.ExecuteNonQuery();
+        }
+    }
+}
