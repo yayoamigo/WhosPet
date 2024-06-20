@@ -1,48 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 using Xunit;
-using System.Data.SqlClient;
 
-namespace WhosPetTests.Infrastructure
+public class TestFixture : IAsyncLifetime
 {
-    public class TestFixture : IAsyncLifetime
+    public string ConnectionString { get; }
+
+    public TestFixture()
     {
-        private readonly string _connectionString = "Data Source=DESKTOP-ER2DF6Q;Initial Catalog=WhosPetTest;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True";
-        public TestFixture()
-        {
-           
-        }
+        ConnectionString = "Data Source=DESKTOP-ER2DF6Q;Initial Catalog=WhosPetTest;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True";
+    }
 
-        public async Task InitializeAsync()
-        {
-            await CleanUpData();
-        }
+    public async Task InitializeAsync()
+    {
+        await CleanUpData();
+    }
 
-        public async Task DisposeAsync()
-        {
-            await CleanUpData();
-        }
+    public async Task DisposeAsync()
+    {
+        await CleanUpData();
+    }
 
-        private async Task CleanUpData()
+    public async Task CleanUpData()
+    {
+        using (var connection = new SqlConnection(ConnectionString))
         {
-            using (var connection = new SqlConnection(_connectionString))
+            await connection.OpenAsync();
+            using (var command = new SqlCommand())
             {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand())
-                {
-                    command.Connection = connection;
-                    command.CommandText = @"
+                command.Connection = connection;
+                command.CommandText = @"
                     DELETE FROM LostPetReports;
                     DELETE FROM Notifications;
                     DELETE FROM Pets;
                     DELETE FROM UserProfiles;";
-                    await command.ExecuteNonQueryAsync();
-                }
+                await command.ExecuteNonQueryAsync();
             }
         }
     }
-
 }
