@@ -12,6 +12,7 @@ using WhosPetCore.Domain.Indentity;
 
 namespace WhosPetTests.Infrastructure.User
 {
+    [Collection("Sequential-Tests")]
     public class UserRepositoryTests : IAsyncLifetime
     {
         private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;

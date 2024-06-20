@@ -9,6 +9,7 @@ using System;
 
 namespace WhosPetTests.Infrastructure.Notifications
 {
+    [Collection("Sequential-Tests")]
     public class NotificationRepositoryTests : IAsyncLifetime
     {
         private readonly NotificationRepository _notificationRepository;

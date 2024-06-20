@@ -11,6 +11,7 @@ using System.Collections.Generic;
 
 namespace WhosPetTests.Infrastructure.LostPetRepoTests
 {
+    [Collection("Sequential-Tests")]
     public class LostReportRepositoryTests : IAsyncLifetime
     {
         private readonly Mock<IDbConnection> _mockConnection;
@@ -29,7 +30,7 @@ namespace WhosPetTests.Infrastructure.LostPetRepoTests
             _mockDataReader = new Mock<IDataReader>();
 
             _mockConnection.Setup(conn => conn.CreateCommand()).Returns(_mockCommand.Object);
-            _mockConnection.Setup(conn => conn.Open()).Callback(() => { /* Simulate opening connection */ });
+            _mockConnection.Setup(conn => conn.Open()).Callback(() => {});
 
             _mockCommand.Setup(cmd => cmd.ExecuteScalar()).Returns(1);
             _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);

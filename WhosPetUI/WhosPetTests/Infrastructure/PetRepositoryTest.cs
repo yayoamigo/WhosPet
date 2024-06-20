@@ -10,6 +10,7 @@ using Moq;
 
 namespace WhosPetTests.Infrastructure.LostPet
 {
+    [Collection("Sequential-Tests")]
     public class PetsRepositoryTests : IAsyncLifetime
     {
         private readonly Mock<IDbConnection> _mockConnection;
