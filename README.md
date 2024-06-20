@@ -174,7 +174,7 @@ email: yayon@example.com
 password: 123
 
 ## Testing
-For testing I followed TDD, but for testing the the  Infrastructure layer I opted for doing integration testing, you would need to create a new DB called WhosPetTest, with the previous tables, and replace the connection string on each test and the fixture
+For testing I followed TDD, but for testing the the  Infrastructure layer I opted for doing integration testing, you would need to create a new DB called WhosPetTest, with the previous tables, and replace the connection string on  the fixture
 
 ## PostMan
 You can find 3 postman files at the root of this project to test the endpoints, remember to use the bearer token you get when logged in.
