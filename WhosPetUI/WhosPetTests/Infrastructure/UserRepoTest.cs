@@ -17,45 +17,30 @@ namespace WhosPetTests.Infrastructure.User
     {
         private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
         private readonly UserRepository _userRepository;
-        private readonly string _connectionString = "Data Source=DESKTOP-ER2DF6Q;Initial Catalog=WhosPetTest;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True";
+        private readonly TestFixture _fixture;
 
-        public UserRepositoryTests()
+        public UserRepositoryTests(TestFixture fixture)
         {
-            var options = new ConnectionStringOptions { ConnectionString = _connectionString };
+            _fixture = fixture;
+            var options = new ConnectionStringOptions { ConnectionString = _fixture.ConnectionString };
             _userManagerMock = new Mock<UserManager<ApplicationUser>>(
                 Mock.Of<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
             _userRepository = new UserRepository(options, _userManagerMock.Object);
         }
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            await CleanUpData();
-            await SeedUserProfile();
+            return _fixture.CleanUpData();
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
-            await CleanUpData();
-        }
-
-        private async Task CleanUpData()
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand())
-                {
-                    command.Connection = connection;
-                    command.CommandText = @"
-                        DELETE FROM UserProfiles;";
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
+            return _fixture.CleanUpData();
         }
 
         private async Task SeedUserProfile()
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_fixture.ConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand())
@@ -75,6 +60,9 @@ namespace WhosPetTests.Infrastructure.User
         [Fact]
         public async Task GetUserbyEmail_ShouldReturnUserProfile_WhenEmailExists()
         {
+            await _fixture.CleanUpData();
+            await SeedUserProfile();
+
             // Act
             var result = await _userRepository.GetUserbyEmail("user@example.com");
 
@@ -85,26 +73,41 @@ namespace WhosPetTests.Infrastructure.User
             Assert.Equal("Doe", result.Surname);
             Assert.Equal("New York", result.City);
             Assert.Equal("123 Main St", result.Address);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
         public async Task GetUserbyEmail_ShouldReturnNull_WhenEmailDoesNotExist()
         {
+            await _fixture.CleanUpData();
+            await SeedUserProfile();
+
             // Act
             var result = await _userRepository.GetUserbyEmail("nonexistent@example.com");
 
             // Assert
             Assert.Null(result);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
         public async Task GetUserbyEmail_ShouldReturnNull_WhenEmailIsNullOrEmpty()
         {
+            await _fixture.CleanUpData();
+            await SeedUserProfile();
+
             // Act
             var result = await _userRepository.GetUserbyEmail(null);
 
             // Assert
             Assert.Null(result);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
     }
 }

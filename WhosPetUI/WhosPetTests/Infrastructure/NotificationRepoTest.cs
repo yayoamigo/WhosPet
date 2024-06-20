@@ -1,11 +1,13 @@
 ﻿using Xunit;
+using Moq;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using WhosPetCore.Domain.Entities;
 using WhosPetInfrastructure.Repos;
+using WhosPetCore.DTO.Incoming.Pets;
 using WhosPetAuth;
 using System.Collections.Generic;
-using System;
 
 namespace WhosPetTests.Infrastructure.Notifications
 {
@@ -13,45 +15,34 @@ namespace WhosPetTests.Infrastructure.Notifications
     public class NotificationRepositoryTests : IAsyncLifetime
     {
         private readonly NotificationRepository _notificationRepository;
-        private readonly string _connectionString = "Data Source=DESKTOP-ER2DF6Q;Initial Catalog=WhosPetTest;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True";
+        private readonly TestFixture _fixture;
 
-        public NotificationRepositoryTests()
+        public NotificationRepositoryTests(TestFixture fixture)
         {
-            var options = new ConnectionStringOptions { ConnectionString = _connectionString };
+            _fixture = fixture;
+            var options = new ConnectionStringOptions { ConnectionString = _fixture.ConnectionString };
             _notificationRepository = new NotificationRepository(options);
         }
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            await CleanUpData();
+            return InitializeFixtureAsync();
+        }
+
+        public Task DisposeAsync()
+        {
+            return _fixture.CleanUpData();
+        }
+
+        private async Task InitializeFixtureAsync()
+        {
+            await _fixture.CleanUpData();
             await SeedUserProfile();
-        }
-
-        public async Task DisposeAsync()
-        {
-            await CleanUpData();
-        }
-
-        private async Task CleanUpData()
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand())
-                {
-                    command.Connection = connection;
-                    command.CommandText = @"
-                        DELETE FROM Notifications;
-                        DELETE FROM Pets;
-                        DELETE FROM UserProfiles;";
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
         }
 
         private async Task SeedUserProfile()
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_fixture.ConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand())
@@ -85,6 +76,9 @@ namespace WhosPetTests.Infrastructure.Notifications
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
     }
 }

@@ -18,11 +18,12 @@ namespace WhosPetTests.Infrastructure.LostPetRepoTests
         private readonly Mock<IDbCommand> _mockCommand;
         private readonly Mock<IDataReader> _mockDataReader;
         private readonly LostReportRepository _lostReportRepository;
-        private readonly string _connectionString = "Data Source=DESKTOP-ER2DF6Q;Initial Catalog=WhosPetTest;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True";
+        private readonly TestFixture _fixture;
 
-        public LostReportRepositoryTests()
+        public LostReportRepositoryTests(TestFixture fixture)
         {
-            var options = new ConnectionStringOptions { ConnectionString = _connectionString };
+            _fixture = fixture;
+            var options = new ConnectionStringOptions { ConnectionString = _fixture.ConnectionString };
             _lostReportRepository = new LostReportRepository(options);
 
             _mockConnection = new Mock<IDbConnection>();
@@ -30,42 +31,26 @@ namespace WhosPetTests.Infrastructure.LostPetRepoTests
             _mockDataReader = new Mock<IDataReader>();
 
             _mockConnection.Setup(conn => conn.CreateCommand()).Returns(_mockCommand.Object);
-            _mockConnection.Setup(conn => conn.Open()).Callback(() => {});
+            _mockConnection.Setup(conn => conn.Open()).Callback(() => { });
 
             _mockCommand.Setup(cmd => cmd.ExecuteScalar()).Returns(1);
             _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             _mockCommand.Setup(cmd => cmd.ExecuteReader()).Returns(_mockDataReader.Object);
         }
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            await CleanUpData();
+            return _fixture.CleanUpData();
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
-            await CleanUpData();
-        }
-
-        private async Task CleanUpData()
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand())
-                {
-                    command.Connection = connection;
-                    command.CommandText = @"
-                        DELETE FROM LostPetReports;
-                        DELETE FROM Notifications;";
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
+            return _fixture.CleanUpData();
         }
 
         private async Task<int> SeedData()
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_fixture.ConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand())
@@ -123,6 +108,9 @@ namespace WhosPetTests.Infrastructure.LostPetRepoTests
 
             // Assert
             Assert.True(result > 0);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
@@ -156,6 +144,9 @@ namespace WhosPetTests.Infrastructure.LostPetRepoTests
             // Assert
             Assert.NotNull(result);
             Assert.Single(result);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
@@ -172,6 +163,9 @@ namespace WhosPetTests.Infrastructure.LostPetRepoTests
 
             // Assert
             Assert.True(result);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
     }
 }

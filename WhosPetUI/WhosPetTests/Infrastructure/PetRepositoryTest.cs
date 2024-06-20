@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Xunit;
+using Moq;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using WhosPetAuth;
 using WhosPetCore.Domain.Entities;
 using WhosPetInfrastructure.Repos;
-using Xunit;
-using Moq;
+using WhosPetCore.DTO.Incoming.Pets;
+using WhosPetAuth;
+using System.Collections.Generic;
 
 namespace WhosPetTests.Infrastructure.LostPet
 {
@@ -17,11 +18,12 @@ namespace WhosPetTests.Infrastructure.LostPet
         private readonly Mock<IDbCommand> _mockCommand;
         private readonly Mock<IDataReader> _mockDataReader;
         private readonly PetsRepository _petsRepository;
-        private readonly string _connectionString = "Data Source=DESKTOP-ER2DF6Q;Initial Catalog=WhosPetTest;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True";
+        private readonly TestFixture _fixture;
 
-        public PetsRepositoryTests()
+        public PetsRepositoryTests(TestFixture fixture)
         {
-            var options = new ConnectionStringOptions { ConnectionString = _connectionString };
+            _fixture = fixture;
+            var options = new ConnectionStringOptions { ConnectionString = _fixture.ConnectionString };
             _petsRepository = new PetsRepository(options);
 
             _mockConnection = new Mock<IDbConnection>();
@@ -29,42 +31,26 @@ namespace WhosPetTests.Infrastructure.LostPet
             _mockDataReader = new Mock<IDataReader>();
 
             _mockConnection.Setup(conn => conn.CreateCommand()).Returns(_mockCommand.Object);
-            _mockConnection.Setup(conn => conn.Open()).Callback(() => {  });
+            _mockConnection.Setup(conn => conn.Open()).Callback(() => { });
 
             _mockCommand.Setup(cmd => cmd.ExecuteScalar()).Returns(1);
             _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             _mockCommand.Setup(cmd => cmd.ExecuteReader()).Returns(_mockDataReader.Object);
         }
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            await CleanUpData();
+            return _fixture.CleanUpData();
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
-            await CleanUpData();
-        }
-
-        private async Task CleanUpData()
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand())
-                {
-                    command.Connection = connection;
-                    command.CommandText = @"
-                        DELETE FROM Pets;
-                        DELETE FROM UserProfiles;";
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
+            return _fixture.CleanUpData();
         }
 
         private async Task<int> SeedData()
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_fixture.ConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand())
@@ -93,7 +79,7 @@ namespace WhosPetTests.Infrastructure.LostPet
 
         private async Task SeedDataForAdding()
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_fixture.ConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand())
@@ -141,6 +127,9 @@ namespace WhosPetTests.Infrastructure.LostPet
 
             // Assert
             Assert.True(result > 0);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
@@ -169,6 +158,8 @@ namespace WhosPetTests.Infrastructure.LostPet
             // Assert
             Assert.True(result.Count > 0);
 
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
@@ -182,6 +173,9 @@ namespace WhosPetTests.Infrastructure.LostPet
 
             // Assert
             Assert.True(result);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
 
         [Fact]
@@ -209,6 +203,9 @@ namespace WhosPetTests.Infrastructure.LostPet
 
             // Assert
             Assert.True(result);
+
+            // Cleanup
+            await _fixture.CleanUpData();
         }
     }
 }
