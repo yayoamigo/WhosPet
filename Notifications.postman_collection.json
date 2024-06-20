@@ -1,0 +1,58 @@
+{
+	"info": {
+		"_postman_id": "d90783d4-5e24-40d5-a74c-f36716179114",
+		"name": "Notifications",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25330536"
+	},
+	"item": [
+		{
+			"name": "Get Notifications",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwianRpIjoiOGY4MzA5NzctMmQyYy00OGE2LWJjN2QtNmMzMWU3MjQ5YTViIiwiZW1haWwiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE4ODQyNDI5LCJuYmYiOjE3MTg4NDI0MjksImV4cCI6MTcxODg0NDIyOX0.Hg7KcSHR7KNBD4mc4SWb7giNn8LqCCP69Gyxi31BLQY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:64461/api/NotificationContoller?email=user@example.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "64461",
+					"path": [
+						"api",
+						"NotificationContoller"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "user@example.com"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
