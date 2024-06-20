@@ -11,7 +11,7 @@ using Xunit;
 using AlertaPatitasAPIUI.Helpers;
 using WhosPetCore.Domain.Entities.Auth;
 using WhosPetCore.Domain.Indentity;
-using WhosPetCore.ServiceContracts;
+using WhosPetCore.Domain.ServiceContracts;
 
 namespace AlertaPatitasAPIUI.Tests.Helpers
 {

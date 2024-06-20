@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WhosPetCore.Domain.Enums
+namespace WhosPetCore.ServiceContracts.PetContracts
 {
-    public enum AnimalTypeEnum
+    public interface IDeletePetService
     {
-        Dog,
-        Cat
+        Task<bool> DeletePet(int id);
     }
 }

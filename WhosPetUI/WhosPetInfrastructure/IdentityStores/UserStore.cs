@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using WhosPetCore.Domain.Entities;
-using WhosPetCore.Domain.Enums;
 using WhosPetCore.Domain.Indentity;
 using System.Security.Claims;
 
@@ -625,26 +624,40 @@ namespace WhosPetAuth.IdentityStores
             return users;
         }
 
-        public Task AddToRoleAsync(ApplicationUser user, string roleName, CancellationToken cancellationToken)
+        public async Task AddToRoleAsync(ApplicationUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using(var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync(cancellationToken);
 
-                using(var command = new SqlCommand("INSERT INTO AspNetUserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)", connection))
+                // Fetch the role ID based on the role name
+                string roleId;
+                using (var command = new SqlCommand("SELECT Id FROM AspNetRoles WHERE Name = @RoleName", connection))
+                {
+                    command.Parameters.AddWithValue("@RoleName", roleName);
+
+                    var result = await command.ExecuteScalarAsync(cancellationToken);
+                    if (result == null)
+                    {
+                        throw new InvalidOperationException($"Role '{roleName}' does not exist.");
+                    }
+
+                    roleId = result.ToString();
+                }
+
+                // Insert the user role
+                using (var command = new SqlCommand("INSERT INTO AspNetUserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)", connection))
                 {
                     command.Parameters.AddWithValue("@UserId", user.Id);
-                    command.Parameters.AddWithValue("@RoleId", roleName);
+                    command.Parameters.AddWithValue("@RoleId", roleId);
 
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync(cancellationToken);
                 }
             }
-
-            return Task.CompletedTask;
-
         }
+
 
         public Task RemoveFromRoleAsync(ApplicationUser user, string roleName, CancellationToken cancellationToken)
         {

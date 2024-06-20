@@ -13,9 +13,9 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using WhosPetCore.Domain.Entities.Auth;
 using WhosPetCore.Domain.Indentity;
+using WhosPetCore.Domain.ServiceContracts;
 using WhosPetCore.DTO.Incoming.Auth;
 using WhosPetCore.Helpers;
-using WhosPetCore.ServiceContracts;
 using Xunit;
 
 namespace AlertaPatitasAPIUI.Tests.Helpers
